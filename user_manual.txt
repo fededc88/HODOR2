@@ -1,0 +1,62 @@
+Manual Proyecto HODOR2
+
+
+Ingresar al MENU:
+
+Mantener pulsada la tecla 'C' 2 segundos y soltar. Esperar 3 segundo y luego introducir el password de administrador 4A0.
+
+El led Rojo se encenderá indicando que ingreso al menu y se mantendrá
+
+
+se desplegara el siguiente menu: 
+
+
+-----------------------MENU - CONFIGURACION ---------------------------
+
+(A)gregar nuevo Acceso
+(B)orrar nuevo acceso
+(D) SALIR
+
+-----------------------------------------------------------------------
+
+
+
+ para (A)gregar nuevo Acceso:
+
+1- Entrar al menu de configuración de la forma descripta anteriormente. O si ya se encuentra en el menu:
+
+2- Presionar A.
+
+3- Ingresar la posicion de 00 a 50. Luego presionar A para aceptar la posición o B para volver a ingresarla. (recordar que si la posiciòn ya esta siendo usada se sobre escribirá.)
+
+4- Ingresar Codigo alfanumerico de 3 cifras. ej: 1 2 3 (Puede utilizarse cualquier tecla del teclado). 
+
+5- El led verde parpadeara indicando que el código fue ingresado satisfactoriamente. El led Rojo parpadeara indicando que ha ocurrido un error y debe repetir el procedimiento comenzando desde el punto 2.
+
+
+Ejemplo: Agregar clave 747 en posición 5 ingresando al menu: 'C...' (3 seg) * * * A 0 5 A 7 4 7
+
+	 Agregar clave 707 en posición 0 desde el menu:  A 0 0 A 7 0 7
+
+  
+
+
+
+
+ para (B)orrar posición pre existente: 
+
+1- Entrar al menu de configuración de la forma descripta anteriormente. O si ya se encuentra en el menu:
+
+2- Presionar B.
+
+3- Ingresar la posición que desea borrar. Luego presionar A para aceptar la posición o B para volver a ingresarla. Ej: 05 borrara la posición 5
+
+5- El led verde parpadeara indicando que la posición fue borrada satisfactoriamente.
+
+
+
+Ejemplo: Borrar posición 13 ingresando al menu: 'C...' (3 seg) * * * B 1 3 A
+		
+	 Borrar posición 13 desde el menu:  B 1 3 A	
+
+
