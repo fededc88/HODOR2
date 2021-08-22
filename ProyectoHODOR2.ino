@@ -10,6 +10,7 @@
 bool ArmarCodigo(char*, int, char);
 void PrintMenu(void);
 bool agregarPin(void);
+void borrarPin(void);
 bool Validacion(void);
 bool Aceptar(void);
 void cerradura(void);
@@ -46,8 +47,8 @@ unsigned long loopCount;
 unsigned long startTime;
 String msg;
 char code[Ndigitos], codeV[Ndigitos], tecla;
-int pos = 0, Ncod = 0;
-static char pass[3];
+int pos = 0, Ncod = 50; //Ncod es el numero de codigos que se pueden agregar
+static char pass[Ndigitos];
 
 /*--------------------Inicialización de KeyPad-----------------------*/
 
@@ -71,7 +72,7 @@ void setup() {
 
   //calculo numero de codigos en memoria.
 
-  Ncod = 5;
+
 }
 
 void loop() {
@@ -85,29 +86,30 @@ void loop() {
 
       //   CodeFlag = false;
 
-      for (int i = 0; i <= (Ncod * 3); i = i + 3) {
+      for (int i = 0; i <= (Ncod * Ndigitos); i = i + Ndigitos) {
         for (int a = 0; a < Ndigitos; a++) {
           EEPROM.get(i + a, codeV[a]);
-         // Serial.print(codeV[a]);
+          // Serial.print(codeV[a]);
         }
         if (code[0] == codeV[0] && code[1] == codeV[1] && code[2] == codeV[2]) {
           cerradura();
           break;
         }
       }
-      
-//Me permite conocer la contraseña ingresada!
-//      Serial.print("contraseña: ");
-//      for (int a = 0; a < Ndigitos; a++) {
-//        Serial.print(code[a]);
-//      }
-//      Serial.println();
+
+      //Me permite conocer la contraseña ingresada!
+      //      Serial.print("contraseña: ");
+      //      for (int a = 0; a < Ndigitos; a++) {
+      //        Serial.print(code[a]);
+      //      }
+      //      Serial.println();
     }
   }
 
   if ((kpd.key[0].kstate == HOLD) && kpd.key[0].kchar == 'C' && Validacion()) {
 
-    PrintMenu();
+   PrintMenu();
+   
     while (kpd.key[0].kchar != 'D') {
       if ( kpd.getKeys()) {
         if ( kpd.key[0].stateChanged && kpd.key[0].kstate == PRESSED) {
@@ -119,7 +121,8 @@ void loop() {
               break;
 
             case 'B':
-              Serial.println("CASE B");
+              borrarPin();
+              PrintMenu();
               break;
 
             case 'D':
@@ -138,6 +141,20 @@ void loop() {
 
 
 }  // End loop
+
+void borrarPin(void) {
+
+  int EEaddress = 0;
+
+  EEaddress = Posicion() * 3;
+
+  if (EEaddress >= 0 && EEaddress < (Ncod*3)) {
+    for (int a = 0; a < Ndigitos; a++) {
+      EEPROM.update(EEaddress + a, 'n');
+    }
+  }
+  else Serial.println("\n\rLa posición es erronea...");
+}
 bool agregarPin(void) {
 
 
@@ -217,7 +234,7 @@ int Posicion(void) {
       if (ArmarCodigo(pos, Ndigitos - 1, kpd.key[0].kchar)) {
         posi = atoi(pos);
 
-        Serial.print("Usted ingreso la posicion: ");
+        Serial.print("\n\rUsted ingreso la posicion: ");
         Serial.println(posi);
         if (Aceptar()) {
           HayPos = true;
@@ -296,6 +313,7 @@ bool ArmarCodigo(char * codep, int Nnumeros, char tecla) {
   //Serial.println(timer);
 
   if (tecla) {
+    Serial.print('*');
 
     if (pos < Nnumeros - 1) {
       timer = millis();
