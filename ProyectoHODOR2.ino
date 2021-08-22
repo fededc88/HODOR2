@@ -9,10 +9,13 @@
 //return true when a 3 digits code is entered. Numbers should be pressed in less than 1 second. 
 bool HayCodigo(char*, int,char);
 void PrintMenu(void);
+bool agregarPin(void);
 
 
 
 #include <Keypad.h>
+#include <EEPROM.h>
+
 
 #define Ndigitos 3 //numero de digitos del codigo de acceso. 
 
@@ -62,7 +65,6 @@ void loop() {
     
 
   if (tecla){
-
     if (HayCodigo(code,Ndigitos,kpd.key[0].kchar)){
       
      //   CodeFlag = false;
@@ -86,7 +88,10 @@ void loop() {
                   switch (kpd.key[0].kchar){
 
                     case 'A':
-                      Serial.println("CASE A");
+                      agregarPin();
+                      PrintMenu();
+                      Serial.println(kpd.key[0].kchar);
+                      Serial.println(kpd.key[0].stateChanged);
                       break;
 
                     case 'B':
@@ -107,7 +112,56 @@ void loop() {
 
     
 }  // End loop
+bool agregarPin(void){
+  
 
+  bool HayPos=false;
+  char pos[2];
+  int posi=0; 
+  int codei=0;
+  char codec[Ndigitos-1];
+  
+
+//           kpd.getKeys();            
+           Serial.println("Ingrese posición:");                                          
+           
+           while(!HayPos){ 
+                   tecla = kpd.getKey();   
+                    if (tecla){
+                          if (HayCodigo(pos,Ndigitos-1,kpd.key[0].kchar)){
+                             posi = atoi(pos);                      
+
+                        Serial.print("Usted ingreso la posicion: ");  
+                        Serial.println(posi);
+                        HayPos=true;                     
+                     }
+                    }
+           }
+                     
+           Serial.println("Ingrese clave de 3 dígitos:"); 
+
+            while(kpd.key[0].kchar != 'D'){ 
+                   tecla = kpd.getKey();   
+                    if (tecla){
+                          if (HayCodigo(codec,Ndigitos,kpd.key[0].kchar)){
+                                                   
+                        codei=atoi(codec);
+                        Serial.print("Code: ");  
+                        Serial.println(codei);
+                     }
+                    }
+            }
+            
+                        
+                    
+                        
+                        
+                      
+       
+  kpd.getKeys();
+  return true;
+}
+ 
 bool HayCodigo(char * codep, int Nnumeros,char tecla){
   
 
