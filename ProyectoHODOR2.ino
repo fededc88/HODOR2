@@ -11,6 +11,7 @@ bool HayCodigo(char*, int,char);
 void PrintMenu(void);
 
 
+
 #include <Keypad.h>
 
 #define Ndigitos 3 //numero de digitos del codigo de acceso. 
@@ -78,11 +79,28 @@ void loop() {
      }
 
      if((kpd.key[0].kstate==HOLD) && kpd.key[0].kchar == 'C'){
-      PrintMenu();
+     PrintMenu();
        while(kpd.key[0].kchar != 'D'){
-              kpd.getKeys();
+          if( kpd.getKeys()){
+            if ( kpd.key[0].stateChanged && kpd.key[0].kstate == PRESSED){
+                  switch (kpd.key[0].kchar){
 
-        
+                    case 'A':
+                      Serial.println("CASE A");
+                      break;
+
+                    case 'B':
+                     Serial.println("CASE B");
+                     break;
+
+                    default:
+                      break;
+                  }
+              
+            }
+            
+          }
+                    
       }
   }
     
@@ -118,16 +136,11 @@ bool HayCodigo(char * codep, int Nnumeros,char tecla){
 }
 
 void PrintMenu(void){
-  Serial.println("-----------------------MENU - CONFIGURACION ---------------------------");
-  Serial.println();
-  Serial.println("(A)gregar nuevo Acceso");
-  Serial.println("(B)orrar nuevo acceso");
-  Serial.println("");
-  Serial.println("(D) SALIR");
-  Serial.println("");
-  Serial.println("------------------------------------------------------------------");
 
-
-   
+  String menu = "-----------------------MENU - CONFIGURACION ---------------------------\n\n\r(A)gregar nuevo Acceso\n\r(B)orrar nuevo acceso\n\r(D) SALIR\n\n\r------------------------------------------------------------------\n\r";
+  //String RC = "   /s:`        `-/+-                                             \n\r                                    -y+`-o+.  `:oo+omo`                                             \n\r                                  `os` ./ .oyoo-`.sy.                                               \n\r                                 -y: -/+/.`o+/``+h:                                                 \n\r                                +y.-`o`o `+:+./hoso`   `..``````````                                \n\r                              `ys` +/s://s:::h+`.o/doo+//:::////:-:/oo+.                            \n\r                              `+ys. `:-oo-.+h.  `y:m`                 .s+                           \n\r                                `ho /so::`.N/////:+h`-:///:`            s/                          \n\r                                `m+++++-  +m-      +y/-```:h:           +s                          \n\r                                :m/::-   ++`     `+d`      `/`        `/y.`:o/  .:+.                \n\r                                h/ -:./hy    `/oy+/N-   `-:///+o+///:/dhooo/-moo+-.h`               \n\r                               sh`:sdNNd.  -so//://hmhoo++m:..``    `.N/    .m/-/o++`               \n\r                              -Nhdo+MNo` `sy:h+:No+/--+o:-m.      ```-N- `:.o/s.-m-                 \n\r                             .hNo` :Ns` -h/+h- +h  :dso-:ys`      ```+m`  -//:dh//y/                \n\r                           .oNN+ ./+:  :h-yNho+d.  y/ .my+y.      ```do      `hys+ooy`              \n\r                        `-yNNNd`/my`  :y.dNNNNNNo-/s  `m```      `.:ho`       `.Ns+/s.              \n\r                       :hNNNNNy  `   -y.dNNNNNNNNNhy/.s/       `+yo+..:  `:+++//-`                  \n\r                     :hNNNNNNNN:    `h.yNNNNNNNNm:/d/+:   `:/o+:` /o+ym++/-`                        \n\r                   -hNNNNdNNNNNNs.  o:/NNNNNNNNN/+y`   .//ssymo` -+++:`                             \n\r                 `sNNNhhmNNNNNNNN- .s`dNNNNNNNd-os``/+osyhdhdhdh:-`                                 \n\r                :mNh+omNNNNNNNNNm` o`:NNNNNNNm-od+oosyddhhhddyom`                                   \n\r               :Nh- hNNNNNNNNNNNy `o /:.oNNNN-/m+oydhhhhddh+:/+s.                                   \n\r               +:   .sNNNNNNNNNM/ .+    -+`.o.dmddhdhddyo:+o+-`                                     \n\r                      `+MNNNNNNM. -/`o.    .-sdhhddmh+:/oo:`                                        \n\r                        ydNNNNNM` :/`mm- -y//dhdmds:/os/`                                           \n\r                          :dNNNM. :/ hNosNs:ddds//oo:`                                              \n\r                          -sysmN+ .o oNNNs/mds/oo/`                                                 \n\r                       `+hy/:/dNd` s``oo:+h:/so.                                                    \n\r                     `/dy::odmddNs:oh//ohdmd+`                                                      \n\r                    :hs::/ddhhhmh+++hdhdmm/`                                                        \n\r                  `omo+osmdhddmh+//oysss+`                                                          \n\r                   ..`````   `                            \n\r";
+  Serial.print(menu);
+//  Serial.print(RC);
+  
 }
 
