@@ -14,6 +14,8 @@ void borrarPin(void);
 bool Validacion(void);
 bool Aceptar(void);
 void cerradura(void);
+void parpadeoRojo(void);
+void parpadeoVerde(void);
 
 
 
@@ -24,6 +26,9 @@ void cerradura(void);
 
 #define Ndigitos 3 //numero de digitos del codigo de acceso.
 #define adrPass 1020 //direccion de la Contraseña Maestra en EEPROM
+#define ledPinV 12
+#define ledPinR 11
+
 
 /*--------------------Inicialización de variables-----------------------*/
 char customKey;
@@ -69,17 +74,24 @@ void setup() {
   for (int i = 0; i < Ndigitos; i++) {
     EEPROM.get(adrPass + i, pass[i]);
   }
+  
+    pinMode(ledPinV, OUTPUT);
+    pinMode(ledPinR, OUTPUT);
+    pinMode(13, OUTPUT);
 
   //calculo numero de codigos en memoria.
+
+  digitalWrite(ledPinV,HIGH);
+  digitalWrite(ledPinR,LOW);
+  
 
 
 }
 
 void loop() {
 
-
+  digitalWrite(ledPinR,LOW);
   tecla = kpd.getKey();
-
 
   if (tecla) {
     if (ArmarCodigo(code, Ndigitos, kpd.key[0].kchar)) {
@@ -95,6 +107,7 @@ void loop() {
           cerradura();
           break;
         }
+        else if(i== (Ncod * Ndigitos)) parpadeoRojo();
       }
 
       //Me permite conocer la contraseña ingresada!
@@ -105,9 +118,11 @@ void loop() {
       //      Serial.println();
     }
   }
+ 
 
   if ((kpd.key[0].kstate == HOLD) && kpd.key[0].kchar == 'C' && Validacion()) {
-
+   
+   digitalWrite(ledPinR,HIGH);
    PrintMenu();
    
     while (kpd.key[0].kchar != 'D') {
@@ -130,6 +145,8 @@ void loop() {
 
             default:
               Serial.println("\nSaca la mano de ahi antonio!!\n\r");
+              parpadeoRojo();
+              digitalWrite(ledPinR, HIGH);              
               PrintMenu();
               break;
           }
@@ -152,8 +169,13 @@ void borrarPin(void) {
     for (int a = 0; a < Ndigitos; a++) {
       EEPROM.update(EEaddress + a, 'n');
     }
+    parpadeoVerde();
   }
-  else Serial.println("\n\rLa posición es erronea...");
+  else{
+    Serial.println("\n\rLa posición es erronea...");
+    parpadeoRojo();
+    digitalWrite(ledPinR, HIGH);
+  }
 }
 bool agregarPin(void) {
 
@@ -187,13 +209,13 @@ bool agregarPin(void) {
     }
   }
 
-  if (EEaddress >= 0 && EEaddress < (EEPROM.length() - Ndigitos)) {
+  if (EEaddress >= 0 && EEaddress < (Ncod*3)) {
 
     for (int a = 0; a < Ndigitos; a++) {
       EEPROM.update(EEaddress + a, codec[a]);
     }
-
-
+    parpadeoVerde();
+    
     Serial.print("El numero Guardado es: ");
     for (int a = 0; a < Ndigitos; a++) {
       EEPROM.get(EEaddress + a, prueba[a]);
@@ -201,6 +223,11 @@ bool agregarPin(void) {
     }
     Serial.print("\nEn Address: ");
     Serial.print(EEaddress);
+  }
+  else{
+    parpadeoRojo();
+    digitalWrite(ledPinR, HIGH);
+    
   }
 
 
@@ -215,6 +242,36 @@ void cerradura(void) {
   digitalWrite(13, HIGH);
   delay(1000);
   digitalWrite(13, LOW);
+}
+
+void parpadeoRojo(void){
+
+ //     Serial.print("Wrong pass");
+
+  for(int i=0;i<3;i++){
+
+
+      digitalWrite(ledPinR, HIGH);
+      delay(200);
+      digitalWrite(ledPinR, LOW);
+      delay(200);
+}
+ 
+}
+
+void parpadeoVerde(void){
+
+ //     Serial.print("Wrong pass");
+
+  for(int i=0;i<3;i++){
+
+
+      digitalWrite(ledPinV, LOW);
+      delay(200);
+      digitalWrite(ledPinV, HIGH);
+      delay(200);
+}
+ 
 }
 
 int Posicion(void) {
@@ -263,6 +320,7 @@ bool Validacion(void) {
       }
       else {
         Serial.print("\nCodigo Incorrecto\n\rIngrese Pass...\n\r");
+        parpadeoRojo();    
       }
     }
   }
@@ -296,6 +354,8 @@ bool Aceptar(void) {
 
           default:
             Serial.println("\nSaca la mano de ahi antonio!!\n\r");
+            parpadeoRojo();
+            digitalWrite(ledPinR, HIGH);
             Serial.println("Es correcto?");
             Serial.println("(A) aceptar - (B) volver a elegir");
             break;
@@ -308,7 +368,7 @@ bool Aceptar(void) {
 bool ArmarCodigo(char * codep, int Nnumeros, char tecla) {
 
 
-  if (millis() - timer > 1000) pos = 0;
+  if (millis() - timer > 3000) pos = 0;
 
   //Serial.println(timer);
 
