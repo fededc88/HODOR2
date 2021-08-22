@@ -12,6 +12,8 @@ void PrintMenu(void);
 bool agregarPin(void);
 bool Validacion(void);
 bool Aceptar(void);
+void cerradura(void);
+
 
 
 
@@ -25,7 +27,7 @@ bool Aceptar(void);
 /*--------------------Inicialización de variables-----------------------*/
 char customKey;
 unsigned long timer;
-bool CodeFlag;
+bool CodeFlag, AbrirPuerta = false;
 
 const byte ROWS = 4; //four rows
 const byte COLS = 4; //three columns
@@ -43,9 +45,9 @@ byte colPins[COLS] = {5, 4, 3, 2}; //connect to the column pinouts of the kpd
 unsigned long loopCount;
 unsigned long startTime;
 String msg;
-char code[Ndigitos], tecla;
-int pos = 0;
-char pass[3];
+char code[Ndigitos], codeV[Ndigitos], tecla;
+int pos = 0, Ncod = 0;
+static char pass[3];
 
 /*--------------------Inicialización de KeyPad-----------------------*/
 
@@ -60,12 +62,16 @@ void setup() {
   startTime = millis();
   msg = "";
 
- // Serial.println(EEPROM.length());
+  // Serial.println(EEPROM.length());
 
-for(int i=0;i<Ndigitos;i++){
-  EEPROM.get(adrPass+i,pass[i]);  
-}
+  //carga Pass de administrador guardado en la EEPROM en una variable global
+  for (int i = 0; i < Ndigitos; i++) {
+    EEPROM.get(adrPass + i, pass[i]);
+  }
 
+  //calculo numero de codigos en memoria.
+
+  Ncod = 5;
 }
 
 void loop() {
@@ -79,15 +85,24 @@ void loop() {
 
       //   CodeFlag = false;
 
-      Serial.print("contraseña: ");
-      for (int a = 0; a < Ndigitos; a++) {
-        Serial.print(code[a]);
+      for (int i = 0; i <= (Ncod * 3); i = i + 3) {
+        for (int a = 0; a < Ndigitos; a++) {
+          EEPROM.get(i + a, codeV[a]);
+         // Serial.print(codeV[a]);
+        }
+        if (code[0] == codeV[0] && code[1] == codeV[1] && code[2] == codeV[2]) {
+          cerradura();
+          break;
+        }
       }
-      Serial.println();
+      
+//Me permite conocer la contraseña ingresada!
+//      Serial.print("contraseña: ");
+//      for (int a = 0; a < Ndigitos; a++) {
+//        Serial.print(code[a]);
+//      }
+//      Serial.println();
     }
-
-
-
   }
 
   if ((kpd.key[0].kstate == HOLD) && kpd.key[0].kchar == 'C' && Validacion()) {
@@ -115,12 +130,8 @@ void loop() {
               PrintMenu();
               break;
           }
-
         }
-
       }
-
-
     }
   }
 
@@ -132,7 +143,7 @@ bool agregarPin(void) {
 
   bool HayPos = false, HayCodigo = false;
   char pos[2];
-  int EEaddress=0;
+  int EEaddress = 0;
   int codei = 0;
   char codec[Ndigitos];
   char prueba[Ndigitos];
@@ -140,8 +151,8 @@ bool agregarPin(void) {
 
   //           kpd.getKeys();
 
-  EEaddress = Posicion()*3;
-  
+  EEaddress = Posicion() * 3;
+
 
   Serial.println("Ingrese clave de 3 dígitos:");
 
@@ -159,22 +170,22 @@ bool agregarPin(void) {
     }
   }
 
-  if (EEaddress >= 0 && EEaddress < (EEPROM.length()-Ndigitos)) {
+  if (EEaddress >= 0 && EEaddress < (EEPROM.length() - Ndigitos)) {
 
-    for(int a=0;a<Ndigitos;a++){
-         EEPROM.update(EEaddress+a,codec[a]);
+    for (int a = 0; a < Ndigitos; a++) {
+      EEPROM.update(EEaddress + a, codec[a]);
     }
 
 
-  Serial.print("El numero Guardado es: ");
-   for(int a=0;a<Ndigitos;a++){
-       EEPROM.get(EEaddress+a,prueba[a]);
-       Serial.print(prueba[a]);
+    Serial.print("El numero Guardado es: ");
+    for (int a = 0; a < Ndigitos; a++) {
+      EEPROM.get(EEaddress + a, prueba[a]);
+      Serial.print(prueba[a]);
+    }
+    Serial.print("\nEn Address: ");
+    Serial.print(EEaddress);
   }
-  Serial.print("\nEn Address: ");
-  Serial.print(EEaddress);
-  }
-  
+
 
 
 
@@ -182,21 +193,28 @@ bool agregarPin(void) {
   return true;
 }
 
-int Posicion(void){
+void cerradura(void) {
+  AbrirPuerta = false;
+  digitalWrite(13, HIGH);
+  delay(1000);
+  digitalWrite(13, LOW);
+}
 
-  
+int Posicion(void) {
+
+
   bool HayPos = false;
   char pos[2];
   int posi = 0;
-  
 
-  
-Serial.println("Ingrese posición:");
+
+
+  Serial.println("Ingrese posición:");
 
   while (!HayPos) {
     tecla = kpd.getKey();
     if (tecla) {
-      if (ArmarCodigo(pos, Ndigitos-1, kpd.key[0].kchar)) {
+      if (ArmarCodigo(pos, Ndigitos - 1, kpd.key[0].kchar)) {
         posi = atoi(pos);
 
         Serial.print("Usted ingreso la posicion: ");
@@ -206,14 +224,9 @@ Serial.println("Ingrese posición:");
           return posi;
         }
         else  Serial.println("Ingrese posición:");
-
       }
     }
   }
-
-  
-
-  
 }
 
 bool Validacion(void) {
@@ -221,7 +234,7 @@ bool Validacion(void) {
   char code[3];
   bool salir = false;
   char tecla;
-  
+
   Serial.print("\nIngrese Pass...\n\r");
 
   while (!salir) {
@@ -234,15 +247,11 @@ bool Validacion(void) {
       else {
         Serial.print("\nCodigo Incorrecto\n\rIngrese Pass...\n\r");
       }
-
     }
   }
 
   return false;
 }
-
-
-
 
 bool Aceptar(void) {
 
@@ -274,15 +283,11 @@ bool Aceptar(void) {
             Serial.println("(A) aceptar - (B) volver a elegir");
             break;
         }
-
       }
     }
-
-
   }
-
-
 }
+
 bool ArmarCodigo(char * codep, int Nnumeros, char tecla) {
 
 
